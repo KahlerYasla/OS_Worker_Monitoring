@@ -5,43 +5,80 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+//---------------------------------------------------------------------------------------------
+// Define a mutex lock for thread synchronization
 pthread_mutex_t lock;
 
+/**
+ * @brief Starts the calculation process for a worker.
+ *
+ * This function reads a message from a worker pipe and performs actions based on the message.
+ * If the message is -55555, the function returns. Otherwise, it increments the count of messages,
+ * prints the message, and locks the mutex if it is the first message. If it is the second message,
+ * it prints the message. If it is the third message, it prints the message, resets the count of messages,
+ * and unlocks the mutex.
+ *
+ * @param workerName The name of the worker.
+ * @param worker_pipe The pipe for communication with the worker.
+ * @param countOfMessages Pointer to the count of messages received.
+ */
 void startCalculation(const char *workerName, const int worker_pipe, int *countOfMessages)
 {
-    int message = -1;
+    int message = -55555;
+
+    // Read message from worker pipe
     read(worker_pipe, &message, sizeof(message));
 
     // Increment count of messages
-    if (message != -1)
+    if (message == -55555)
+    {
+        // If message is -55555, that means message is empty
+        return;
+    }
+    else
     {
         (*countOfMessages)++;
-    }
 
-    if (*countOfMessages == 1)
-    {
-        printf("[%s]\n", workerName);
-        printf("1: %d ", message);
+        if (*countOfMessages == 1)
+        {
+            // Print worker name
+            printf("[%s]\n", workerName);
 
-        // Dont allow other threads focus.
-        pthread_mutex_lock(&lock);
-    }
-    else if (*countOfMessages == 2)
-    {
-        printf("2: %d ", message);
-    }
-    else if (*countOfMessages == 3)
-    {
-        printf("Result: %d\n", message);
-        printf("-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --\n");
+            // Print message
+            printf("%d\n", message);
 
-        *countOfMessages = 0;
+            // Lock the mutex to prevent other threads from accessing shared resources
+            pthread_mutex_lock(&lock);
+        }
+        else if (*countOfMessages == 2)
+        {
+            // Print message
+            printf("%d\n", message);
+        }
+        else if (*countOfMessages == 3)
+        {
+            // Print message
+            printf("=%d\n", message);
 
-        // Unfocus on this thread
-        pthread_mutex_unlock(&lock);
+            // Print separator line
+            printf("-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --\n");
+
+            // Reset count of messages
+            *countOfMessages = 0;
+
+            // Unlock the mutex to allow other threads to access shared resources
+            pthread_mutex_unlock(&lock);
+        }
     }
 }
 
+//---------------------------------------------------------------------------------------------
+/**
+ * @brief Worker thread function that reads messages from a named pipe and performs calculations.
+ *
+ * @param arg The name of the named pipe to read from.
+ * @return void* Returns NULL when the thread exits.
+ */
 void *workerThread(void *arg)
 {
     const char *workerName = (const char *)arg;
@@ -63,8 +100,18 @@ void *workerThread(void *arg)
     pthread_exit(NULL);
 }
 
+//---------------------------------------------------------------------------------------------
+/**
+ * @brief Main function that monitors workers on named pipes.
+ *
+ * This function initializes a mutex, creates threads for each worker,
+ * waits for all threads to finish, and destroys the mutex.
+ *
+ * @return 0 on successful execution.
+ */
 int main()
 {
+    // Print welcome message
     printf("Hello from worker monitor!\n");
     printf("Monitoring workers on named pipes...\n");
     printf("-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --\n");

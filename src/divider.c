@@ -11,10 +11,23 @@ int main()
     printf("Hello from divider!\n");
     printf("-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --\n");
 
-    // Initialize named pipe
+    // Create the pipe
     mkfifo("divider_pipe", 0666);
 
-    const int divider_pipe = open("divider_pipe", O_WRONLY);
+    int divider_pipe = -1;
+
+    divider_pipe = open("divider_pipe", O_WRONLY);
+
+    if (divider_pipe == -1)
+    {
+        printf("Error opening pipe!\n");
+        exit(1);
+    }
+
+    int test = 33;
+
+    write(divider_pipe, &test, sizeof(test));
+    close(divider_pipe);
 
     while (1)
     {
@@ -25,15 +38,42 @@ int main()
         int b;
         int result;
 
+        divider_pipe = open("divider_pipe", O_WRONLY);
+
+        if (divider_pipe == -1)
+        {
+            printf("Error opening pipe!\n");
+            exit(1);
+        }
+
         scanf("%d", &a);
         write(divider_pipe, &a, sizeof(a));
+        close(divider_pipe);
+
+        divider_pipe = open("divider_pipe", O_WRONLY);
+
+        if (divider_pipe == -1)
+        {
+            printf("Error opening pipe!\n");
+            exit(1);
+        }
 
         scanf("%d", &b);
         write(divider_pipe, &b, sizeof(b));
+        close(divider_pipe);
+
+        divider_pipe = open("divider_pipe", O_WRONLY);
+
+        if (divider_pipe == -1)
+        {
+            printf("Error opening pipe!\n");
+            exit(1);
+        }
 
         result = a / b;
         printf("%d\n", result);
         write(divider_pipe, &result, sizeof(result));
+        close(divider_pipe);
     }
 
     close(divider_pipe);

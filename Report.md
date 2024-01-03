@@ -110,8 +110,6 @@ then run the worker programs in different terminals
 
 # Code Documentation
 ### `worker_monitor.c`
-<!-- add badge to go to the code -->
-[![Go to the source code](https://img.shields.io/badge/Go%20to%20the%20source%20code-%20-red)](./src/worker_monitor.c)
 
 The main program that initializes the mutex, creates worker threads, and monitors their activities. It uses named pipes (`adder_pipe`, `divider_pipe`, `multiplier_pipe`, and `subtractor_pipe`) for communication with the worker threads.
 
@@ -124,8 +122,6 @@ The main program that initializes the mutex, creates worker threads, and monitor
 - `int main()`: The main function that initializes mutex, creates worker threads, and waits for them to finish. Responsible for cleaning up resources after thread execution.
 
 ### `adder.c` (Similar structure for other worker files)
-<!-- add badge to go to the code -->
-[![Go to the source code](https://img.shields.io/badge/Go%20to%20the%20source%20code-%20-red)](./src/adder.c)
 
 The worker program responsible for addition calculations. It opens the relevant named pipe for reading, listens for messages, and performs calculations based on the received data. The worker thread is created by the main program (`worker_monitor.c`).
 
