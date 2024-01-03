@@ -8,10 +8,10 @@ PROGS = adder subtractor multiplier divider worker_monitor
 all: $(PROGS)
 
 adder: src/adder.c
-	$(CC) $(CFLAGS) -o adder src/adder.c
+	$(CC) $(CFLAGS) -o adder src/adder.c 
 
 subtractor: src/subtractor.c
-	$(CC) $(CFLAGS) -o subtractor src/subtractor.c
+	$(CC) $(CFLAGS) -o subtractor src/subtractor.c 
 
 multiplier: src/multiplier.c
 	$(CC) $(CFLAGS) -o multiplier src/multiplier.c
